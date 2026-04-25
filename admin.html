@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPC AI 测评审批端</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="admin-body">
+  <div class="background-orb orb-one" aria-hidden="true"></div>
+  <div class="background-orb orb-two" aria-hidden="true"></div>
+  <div class="background-grid" aria-hidden="true"></div>
+
+  <header class="site-header" id="admin-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">OPC</span>
+      <span class="brand-text">审批驾驶舱</span>
+    </a>
+    <nav class="page-nav" aria-label="审批端导航">
+      <a href="index.html">用户端</a>
+      <a href="#summary-section">汇总</a>
+      <a href="#candidate-section">候选人</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="admin-hero" id="summary-section">
+      <article>
+        <p class="eyebrow"><i class="fa-solid fa-chart-line"></i> Real-time OPC Review Console</p>
+        <h1>实时查看入驻用户测评、分类与创业适配度</h1>
+        <p>审批人可独立查看每位候选人的行业背景、AI 使用深度、考试成绩、推荐课程与 OPC 创业者适配判断。</p>
+      </article>
+      <div class="admin-actions">
+        <button id="refresh-data" class="primary-button" type="button"><i class="fa-solid fa-rotate"></i> 刷新数据</button>
+        <a class="secondary-button" href="index.html">切换到用户端</a>
+      </div>
+    </section>
+
+    <section class="stat-grid" aria-label="核心指标">
+      <article class="stat-card"><span>提交人数</span><strong id="stat-total">0</strong></article>
+      <article class="stat-card"><span>平均总分</span><strong id="stat-average">0</strong></article>
+      <article class="stat-card"><span>OPC 强适配</span><strong id="stat-fit">0</strong></article>
+      <article class="stat-card"><span>待培养用户</span><strong id="stat-nurture">0</strong></article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="chart-card">
+        <h2>AI 认知分类分布</h2>
+        <div class="chart-container"><canvas id="classification-chart"></canvas></div>
+      </article>
+      <article class="chart-card">
+        <h2>OPC 适配判断分布</h2>
+        <div class="chart-container"><canvas id="fit-chart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="candidate-section" id="candidate-section" aria-labelledby="candidate-title">
+      <div class="section-heading-row">
+        <div>
+          <p class="section-kicker">Candidate Review</p>
+          <h2 id="candidate-title">候选人独立汇总</h2>
+        </div>
+        <label class="search-label">搜索
+          <input id="candidate-search" type="search" placeholder="姓名 / 行业 / 分类">
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table class="candidate-table">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>行业/角色</th>
+              <th>AI 分类</th>
+              <th>分数</th>
+              <th>适配判断</th>
+              <th>推荐路径</th>
+              <th>提交时间</th>
+            </tr>
+          </thead>
+          <tbody id="candidate-table-body">
+            <tr><td colspan="7">暂无数据，请先在用户端提交测评。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <article class="detail-panel" id="detail-panel">
+        <h3>答题详情</h3>
+        <p>点击候选人行可查看答题明细与业务目标。</p>
+        <pre id="detail-content"></pre>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 OPC AI 入驻人才测评平台 · 审批端</p>
+    <a href="index.html">返回用户端</a>
+  </footer>
+
+  <script src="admin.js"></script>
+</body>
+</html>
