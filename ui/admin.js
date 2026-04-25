@@ -2,15 +2,36 @@ const tableBody = document.querySelector('#candidate-table-body');
 const detailContent = document.querySelector('#detail-content');
 const searchInput = document.querySelector('#candidate-search');
 const refreshButton = document.querySelector('#refresh-data');
+const logoutButton = document.querySelector('#logout-button');
 let allRecords = [];
 let classificationChart;
 let fitChart;
 
+function redirectToLogin() {
+  location.href = 'login.html';
+}
+
 async function loadAssessments() {
-  const response = await fetch('tables/opc_assessments?page=1&limit=100&sort=-created_at');
+  const response = await fetch('tables/opc_assessments?page=1&limit=100&sort=-created_at', {
+    credentials: 'same-origin',
+  });
+  if (response.status === 401) {
+    redirectToLogin();
+    throw new Error('unauthorized');
+  }
   if (!response.ok) throw new Error('无法加载数据');
   const result = await response.json();
   return result.data || [];
+}
+
+async function handleLogout() {
+  try {
+    await fetch('api/logout.php', { method: 'POST', credentials: 'same-origin' });
+  } catch (error) {
+    // Even if the network call fails, drop the user back at the login page —
+    // the cookie may already be invalid server-side.
+  }
+  redirectToLogin();
 }
 
 function formatDate(value) {
@@ -147,4 +168,5 @@ async function refreshDashboard() {
 
 searchInput.addEventListener('input', applySearch);
 refreshButton.addEventListener('click', refreshDashboard);
+if (logoutButton) logoutButton.addEventListener('click', handleLogout);
 refreshDashboard();

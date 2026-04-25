@@ -1,0 +1,62 @@
+# Sample nginx server block for the OPC AI assessment platform.
+#
+# Adjust:
+#   - `listen` port and `server_name`
+#   - `root` path → must point to the `ui/` directory
+#   - `fastcgi_pass` → match your php-fpm socket / port
+#       common values: unix:/run/php/php8.1-fpm.sock
+#                      unix:/var/run/php-fpm/www.sock
+#                      127.0.0.1:9000
+#
+# config.php lives one level above `ui/` and is therefore NOT web-accessible —
+# this is intentional. Don't move it inside ui/.
+
+server {
+    listen 80;
+    server_name opc.example.com;
+
+    # Document root = the ui/ folder. config.php sits one level up, outside the root.
+    root /var/www/opc-test/ui;
+    index index.html;
+
+    charset utf-8;
+
+    # Block any direct access to dotfiles (.git, .DS_Store, .htaccess, etc.).
+    location ~ /\. {
+        deny all;
+    }
+
+    # The frontend hits a relative URL `tables/opc_assessments` (no `.php`).
+    # Route both with and without trailing slash to the PHP handler.
+    location = /tables/opc_assessments {
+        rewrite ^ /api/assessments.php last;
+    }
+    location = /tables/opc_assessments/ {
+        rewrite ^ /api/assessments.php last;
+    }
+
+    # Standard PHP handling for /api/*.php (login, logout, me, assessments).
+    location ~ ^/api/.+\.php$ {
+        try_files $uri =404;
+        fastcgi_pass unix:/run/php/php-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Don't let anyone fetch the shared bootstrap directly.
+    location = /api/_bootstrap.php {
+        deny all;
+    }
+
+    # Disable PHP execution anywhere else under the doc root — the `js/` and `css/`
+    # directories under ui/ are static; we only want PHP under /api/.
+    location ~ \.php$ {
+        return 404;
+    }
+
+    # Static frontend.
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

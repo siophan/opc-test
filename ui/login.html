@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPC AI 审批端登录</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .login-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+    .login-card { width: 100%; max-width: 420px; padding: 36px 32px; border-radius: 18px;
+                  background: rgba(15,16,32,0.72); backdrop-filter: blur(18px);
+                  border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
+    .login-card h1 { margin: 0 0 6px; font-size: 22px; }
+    .login-card p { margin: 0 0 24px; color: #a3a8c3; font-size: 14px; }
+    .login-card label { display: block; margin-bottom: 14px; font-size: 14px; color: #d6d8ec; }
+    .login-card input { width: 100%; margin-top: 6px; padding: 12px 14px; border-radius: 10px;
+                        border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+                        color: #fff; font: inherit; }
+    .login-card input:focus { outline: 2px solid #8b5cf6; outline-offset: 0; }
+    .login-error { display: none; color: #fca5a5; font-size: 13px; margin: 0 0 14px; }
+    .login-error.visible { display: block; }
+    .login-card button { width: 100%; margin-top: 8px; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="background-orb orb-one" aria-hidden="true"></div>
+  <div class="background-orb orb-two" aria-hidden="true"></div>
+  <div class="background-grid" aria-hidden="true"></div>
+
+  <main class="login-shell">
+    <form class="login-card" id="login-form" autocomplete="on">
+      <p class="eyebrow"><i class="fa-solid fa-shield-halved"></i> Admin Console</p>
+      <h1>OPC 审批端登录</h1>
+      <p>仅 OPC 管理人员可访问。用户端无需登录。</p>
+      <p class="login-error" id="login-error"></p>
+      <label>用户名
+        <input id="username" name="username" type="text" autocomplete="username" required>
+      </label>
+      <label>密码
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="primary-button" type="submit" id="login-submit">登录审批驾驶舱</button>
+    </form>
+  </main>
+
+  <script>
+    const form = document.querySelector('#login-form');
+    const errorEl = document.querySelector('#login-error');
+    const submit = document.querySelector('#login-submit');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorEl.classList.remove('visible');
+      submit.disabled = true;
+      const original = submit.textContent;
+      submit.textContent = '正在验证...';
+      try {
+        const response = await fetch('api/login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.querySelector('#username').value,
+            password: document.querySelector('#password').value,
+          }),
+        });
+        if (response.ok) {
+          location.href = 'admin.html';
+          return;
+        }
+        const data = await response.json().catch(() => ({}));
+        errorEl.textContent = data.error === 'invalid_credentials'
+          ? '用户名或密码不正确'
+          : '登录失败，请稍后再试';
+        errorEl.classList.add('visible');
+      } catch (err) {
+        errorEl.textContent = '网络异常，请检查后重试';
+        errorEl.classList.add('visible');
+      } finally {
+        submit.disabled = false;
+        submit.textContent = original;
+      }
+    });
+  </script>
+</body>
+</html>
