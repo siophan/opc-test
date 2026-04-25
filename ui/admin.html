@@ -10,8 +10,16 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Hide page chrome until admin.js confirms an authenticated session.
+       Without this, an unauthenticated visitor briefly sees the dashboard
+       before being redirected to login.html. */
+    body[data-auth="checking"] > header,
+    body[data-auth="checking"] > main,
+    body[data-auth="checking"] > footer { visibility: hidden; }
+  </style>
 </head>
-<body class="admin-body">
+<body class="admin-body" data-auth="checking">
   <div class="background-orb orb-one" aria-hidden="true"></div>
   <div class="background-orb orb-two" aria-hidden="true"></div>
   <div class="background-grid" aria-hidden="true"></div>

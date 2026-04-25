@@ -166,7 +166,28 @@ async function refreshDashboard() {
   }
 }
 
-searchInput.addEventListener('input', applySearch);
-refreshButton.addEventListener('click', refreshDashboard);
-if (logoutButton) logoutButton.addEventListener('click', handleLogout);
-refreshDashboard();
+async function ensureAuthenticated() {
+  // Gate the entire admin page on api/me.php BEFORE rendering anything.
+  // Any non-200 (including network errors) means "not logged in" — bounce.
+  let response;
+  try {
+    response = await fetch('api/me.php', { credentials: 'same-origin' });
+  } catch (error) {
+    redirectToLogin();
+    return false;
+  }
+  if (!response.ok) {
+    redirectToLogin();
+    return false;
+  }
+  return true;
+}
+
+(async function init() {
+  if (!(await ensureAuthenticated())) return;
+  document.body.dataset.auth = 'ok';
+  searchInput.addEventListener('input', applySearch);
+  refreshButton.addEventListener('click', refreshDashboard);
+  if (logoutButton) logoutButton.addEventListener('click', handleLogout);
+  refreshDashboard();
+})();
